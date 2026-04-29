@@ -1,0 +1,7 @@
+# Lightweight requirements for lead scraping
+# Most work happens on GitHub Actions (cloud), not your PC
+
+requests
+beautifulsoup4
+fake-useragent
+sendgrid
