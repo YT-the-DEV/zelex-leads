@@ -1,0 +1,43 @@
+name: Daily Outreach
+
+on:
+  schedule:
+    - cron: '0 8 * * *'  # Daily at 8 AM UTC
+  workflow_dispatch:  # Manual trigger
+
+jobs:
+  outreach:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - name: Install dependencies
+      run: |
+        pip install -r requirements.txt
+
+    - name: Download leads from previous run
+      uses: actions/download-artifact@v4
+      with:
+        pattern: leads-*
+        merge-multiple: true
+
+    - name: Run outreach
+      env:
+        SENDGRID_API_KEY: ${{ secrets.SENDGRID_API_KEY }}
+        FROM_EMAIL: ${{ secrets.FROM_EMAIL }}
+        FROM_NAME: ${{ secrets.FROM_NAME }}
+      run: python outreach.py
+
+    - name: Upload outreach log
+      uses: actions/upload-artifact@v4
+      with:
+        name: outreach-log-${{ github.run_id }}
+        path: outreach_log.csv
+        retention-days: 30
